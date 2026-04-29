@@ -683,7 +683,7 @@ async function generatePassage() {
   var isFluency = (currentMode === 'fluency');
   var prompt = isFluency
     ? 'You are a reading fluency specialist. Write a natural grade-level reading passage for a ' + currentGrade + ' grade student. Length: approximately 150-200 words for a 60-second read. Topic: ' + topic + '. Use natural language and varied sentences. No section labels or headers. Plain text only.'
-    : 'You are a structured literacy curriculum specialist. Write a decodable reading passage for a ' + currentGrade + ' grade student.\n\nTARGET SKILL: ' + skill + '\nTOPIC: ' + topic + '\nLENGTH: ' + lenDesc + '\n' + (vocab !== 'None' ? 'VOCABULARY: Include ' + vocab + ' vocabulary naturally.\n' : '') + (morph ? 'MORPHEMES: Mark morpheme parts in [brackets] e.g. [un][happy].\n' : '') + (wordlist ? 'Include a WORD LIST section at the start with 3-5 key words and one-word definitions.\n' : '') + (comprq ? 'Include 2 COMPREHENSION QUESTIONS at the end.\n' : '') + '\nRules: 90%+ of words decodable using target skill and previously learned skills. Short clear sentences. Engaging tone. Plain ALL CAPS section labels. No markdown or asterisks.';
+    : 'You are a structured literacy curriculum specialist. Write a decodable reading passage for a ' + currentGrade + ' grade student.\n\nTARGET SKILL: ' + skill + '\nTOPIC: ' + topic + '\nLENGTH: ' + lenDesc + '\n' + (vocab !== 'None' ? 'VOCABULARY: Include ' + vocab + ' vocabulary naturally.\n' : '') + (morph ? 'MORPHEMES: Wrap prefixes and suffixes in <m> tags, e.g. <m>un</m>happy, beauti<m>ful</m>, <m>re</m>start<m>ed</m>. Root words stay untagged. Use ONLY <m> tags, no brackets or other markup.\n' : '') + (wordlist ? 'Include a WORD LIST section at the start with 3-5 key words and one-word definitions.\n' : '') + (comprq ? 'Include 2 COMPREHENSION QUESTIONS at the end.\n' : '') + '\nRules: 90%+ of words decodable using target skill and previously learned skills. Short clear sentences. Engaging tone. Plain ALL CAPS section labels. No markdown or asterisks.';
   try {
     var res = await fetch(WORKER_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1000, messages: [{ role: 'user', content: prompt }] }) });
     var data = await res.json();
@@ -691,7 +691,14 @@ async function generatePassage() {
     document.getElementById('passage-loading').style.display = 'none';
     document.getElementById('passage-output').style.display = 'block';
     document.getElementById('passage-tags').innerHTML = [currentGrade + ' grade', skill, topic].map(function(t) { return '<span class="passage-tag">' + t + '</span>'; }).join('');
-    document.getElementById('passage-box').textContent = text;
+    // Convert <m> tags to styled spans for morpheme highlighting
+    var formatted = text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/&lt;m&gt;/g, '<span style="color:#D85A30; font-weight:600;">')
+      .replace(/&lt;\/m&gt;/g, '</span>');
+    document.getElementById('passage-box').innerHTML = formatted;
     updateDisplay();
     var fp = document.getElementById('fluency-panel');
     if (currentMode === 'fluency') { fp.style.display = 'block'; resetFluencyTimer(); } else { fp.style.display = 'none'; }
