@@ -488,7 +488,10 @@
           <div id="fluency-running" style="display:none; background:#FFFFFF; border-radius:12px; border:1px solid #E0D9D0; padding:20px; margin-top:16px; text-align:center;">
             <div style="font-size:0.72rem; font-weight:600; color:#0F6E56; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:8px;">Time remaining</div>
             <div id="fluency-clock" style="font-family:'DM Serif Display',serif; font-size:4rem; color:#1E1E1E; line-height:1; margin-bottom:16px;">1:00</div>
-            <button class="btn btn-ghost btn-lg" onclick="resetFluencyTimer()">Reset</button>
+            <div style="display:flex; gap:10px; justify-content:center;">
+              <button class="btn btn-coral btn-lg" onclick="stopFluencyTimer()">Stop</button>
+              <button class="btn btn-ghost btn-lg" onclick="resetFluencyTimer()">Reset</button>
+            </div>
           </div>
           <!-- Step 3: Entry form after timer ends -->
           <div id="fluency-entry" style="display:none; background:#FFFFFF; border-radius:12px; border:1px solid #E0D9D0; padding:20px; margin-top:16px;">
@@ -750,6 +753,13 @@ function revealAndStart() {
 }
 
 function startFluencyTimer() { revealAndStart(); }
+
+function stopFluencyTimer() {
+  if (fluencyTimerInterval) { clearInterval(fluencyTimerInterval); fluencyTimerInterval = null; }
+  document.getElementById('fluency-running').style.display = 'none';
+  document.getElementById('fluency-entry').style.display = 'block';
+  document.getElementById('wpm-input').focus();
+}
 function updateClock() {
   var m = Math.floor(fluencySecondsLeft / 60), s = fluencySecondsLeft % 60;
   var el = document.getElementById('fluency-clock'); if (!el) return;
