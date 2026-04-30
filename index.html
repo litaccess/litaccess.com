@@ -476,20 +476,29 @@
       <div id="passage-output" style="display:none;">
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; flex-wrap:wrap; gap:10px;"><div id="passage-tags" style="display:flex; gap:6px; flex-wrap:wrap;"></div><button class="btn btn-ghost btn-sm" onclick="generatePassage()">Regenerate</button></div>
         <div id="passage-box" style="background:#FAF6EF; color:#1E1E1E; font-family:'Atkinson Hyperlegible', sans-serif; font-size:18px; line-height:1.9; letter-spacing:0.5px;"></div>
-        <div id="fluency-panel" style="display:none; margin-top:20px; background:#FFFFFF; border-radius:12px; border:1px solid #E0D9D0; padding:20px;">
-          <div style="font-size:0.72rem; font-weight:600; color:#0F6E56; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:8px;">Fluency Timer</div>
-          <p style="font-size:0.85rem; color:#5A5A5A; margin-bottom:16px; line-height:1.6;">Have the student begin reading aloud. Start the timer when they read the first word. Stop after 60 seconds and enter the number of words read correctly.</p>
-          <div id="fluency-clock" style="font-family:'DM Serif Display',serif; font-size:3rem; color:#1E1E1E; text-align:center; margin-bottom:16px; line-height:1;">1:00</div>
-          <div style="display:flex; gap:10px; justify-content:center; margin-bottom:20px;">
-            <button class="btn btn-lg" id="timer-go-btn" onclick="startFluencyTimer()">Start timer</button>
-            <button class="btn btn-ghost btn-lg" id="timer-reset-btn" style="display:none;" onclick="resetFluencyTimer()">Reset</button>
+        <div id="fluency-panel" style="display:none;">
+          <!-- Step 1: Ready screen shown before passage is revealed -->
+          <div id="fluency-ready" style="background:#0F6E56; border-radius:12px; padding:32px; text-align:center; margin-top:16px;">
+            <div style="font-size:0.72rem; font-weight:600; color:rgba(255,255,255,0.7); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:12px;">Fluency Timer</div>
+            <h3 style="color:#FFFFFF; font-family:'DM Serif Display',serif; font-size:1.4rem; margin-bottom:10px;">Ready to begin?</h3>
+            <p style="font-size:0.88rem; color:rgba(255,255,255,0.85); line-height:1.7; margin-bottom:24px; max-width:340px; margin-left:auto; margin-right:auto;">When you click Start, the passage will appear and the 60-second timer will begin. Have your student ready to read aloud immediately.</p>
+            <button class="btn btn-lg" style="background:#FFFFFF; color:#0F6E56; font-size:1rem;" onclick="revealAndStart()">Start — reveal passage</button>
           </div>
-          <div id="fluency-entry" style="display:none; border-top:1px solid #E0D9D0; padding-top:16px;">
+          <!-- Step 2: Timer shown while reading (passage already visible above) -->
+          <div id="fluency-running" style="display:none; background:#FFFFFF; border-radius:12px; border:1px solid #E0D9D0; padding:20px; margin-top:16px; text-align:center;">
+            <div style="font-size:0.72rem; font-weight:600; color:#0F6E56; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:8px;">Time remaining</div>
+            <div id="fluency-clock" style="font-family:'DM Serif Display',serif; font-size:4rem; color:#1E1E1E; line-height:1; margin-bottom:16px;">1:00</div>
+            <button class="btn btn-ghost btn-lg" onclick="resetFluencyTimer()">Reset</button>
+          </div>
+          <!-- Step 3: Entry form after timer ends -->
+          <div id="fluency-entry" style="display:none; background:#FFFFFF; border-radius:12px; border:1px solid #E0D9D0; padding:20px; margin-top:16px;">
+            <div style="font-size:0.72rem; font-weight:600; color:#0F6E56; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:8px;">Time's up!</div>
             <label class="form-label">Words read correctly in 60 seconds</label>
-            <div style="display:flex; gap:10px; align-items:center;">
+            <div style="display:flex; gap:10px; align-items:center; margin-top:6px;">
               <input type="number" id="wpm-input" class="form-input" placeholder="e.g. 87" min="0" max="300" style="max-width:140px;">
               <button class="btn btn-coral" onclick="scoreFluency()">Get score</button>
             </div>
+            <button class="btn btn-ghost btn-sm" style="margin-top:12px;" onclick="resetFluencyTimer()">Start over</button>
           </div>
           <div id="fluency-result" style="display:none; margin-top:16px;"></div>
         </div>
@@ -701,7 +710,18 @@ async function generatePassage() {
     document.getElementById('passage-box').innerHTML = formatted;
     updateDisplay();
     var fp = document.getElementById('fluency-panel');
-    if (currentMode === 'fluency') { fp.style.display = 'block'; resetFluencyTimer(); } else { fp.style.display = 'none'; }
+    if (currentMode === 'fluency') {
+      // Hide the passage box until timer starts
+      document.getElementById('passage-box').style.display = 'none';
+      fp.style.display = 'block';
+      document.getElementById('fluency-ready').style.display = 'block';
+      document.getElementById('fluency-running').style.display = 'none';
+      document.getElementById('fluency-entry').style.display = 'none';
+      document.getElementById('fluency-result').style.display = 'none';
+    } else {
+      document.getElementById('passage-box').style.display = 'block';
+      fp.style.display = 'none';
+    }
   } catch(e) {
     document.getElementById('passage-loading').style.display = 'none';
     document.getElementById('passage-empty').style.display = 'flex';
@@ -711,22 +731,25 @@ async function generatePassage() {
 }
 
 // --- FLUENCY TIMER ---
-function startFluencyTimer() {
-  var goBtn = document.getElementById('timer-go-btn'), resetBtn = document.getElementById('timer-reset-btn');
-  goBtn.disabled = true; goBtn.textContent = 'Running...'; goBtn.style.background = '#5A5A5A';
-  resetBtn.style.display = 'inline-flex';
+function revealAndStart() {
+  // Reveal passage and start timer simultaneously
+  document.getElementById('passage-box').style.display = 'block';
+  document.getElementById('fluency-ready').style.display = 'none';
+  document.getElementById('fluency-running').style.display = 'block';
   fluencySecondsLeft = 60; updateClock();
   fluencyTimerInterval = setInterval(function() {
     fluencySecondsLeft--;
     updateClock();
     if (fluencySecondsLeft <= 0) {
       clearInterval(fluencyTimerInterval); fluencyTimerInterval = null;
-      goBtn.textContent = "Time's up!";
+      document.getElementById('fluency-running').style.display = 'none';
       document.getElementById('fluency-entry').style.display = 'block';
       document.getElementById('wpm-input').focus();
     }
   }, 1000);
 }
+
+function startFluencyTimer() { revealAndStart(); }
 function updateClock() {
   var m = Math.floor(fluencySecondsLeft / 60), s = fluencySecondsLeft % 60;
   var el = document.getElementById('fluency-clock'); if (!el) return;
@@ -737,11 +760,13 @@ function resetFluencyTimer() {
   if (fluencyTimerInterval) { clearInterval(fluencyTimerInterval); fluencyTimerInterval = null; }
   fluencySecondsLeft = 60;
   var clock = document.getElementById('fluency-clock'); if (clock) { clock.textContent = '1:00'; clock.style.color = '#1E1E1E'; }
-  var goBtn = document.getElementById('timer-go-btn'); if (goBtn) { goBtn.disabled = false; goBtn.textContent = 'Start timer'; goBtn.style.background = '#0F6E56'; }
-  var resetBtn = document.getElementById('timer-reset-btn'); if (resetBtn) { resetBtn.style.display = 'none'; }
   var entry = document.getElementById('fluency-entry'); if (entry) { entry.style.display = 'none'; }
   var result = document.getElementById('fluency-result'); if (result) { result.style.display = 'none'; result.innerHTML = ''; }
   var wpm = document.getElementById('wpm-input'); if (wpm) { wpm.value = ''; }
+  var running = document.getElementById('fluency-running'); if (running) { running.style.display = 'none'; }
+  // Go back to ready screen and hide passage
+  var ready = document.getElementById('fluency-ready'); if (ready) { ready.style.display = 'block'; }
+  var box = document.getElementById('passage-box'); if (box) { box.style.display = 'none'; }
 }
 
 var WPM_BENCH = { 'K': {low:20,mid:30}, '1st': {low:53,mid:71}, '2nd': {low:82,mid:92}, '3rd': {low:97,mid:107}, '4th': {low:109,mid:118}, '5th': {low:114,mid:124} };
