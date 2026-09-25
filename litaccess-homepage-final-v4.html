@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-3EJRNKXMLK"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-3EJRNKXMLK');
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light">
+<title>LitAccess - Decodable Passage Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --teal: #0F6E56; --teal-mid: #1D9E75; --teal-pale: #E1F5EE; --teal-border: #9FE1CB;
+    --coral: #D85A30; --coral-dark: #993C1D; --coral-pale: #FAECE7;
+    --cream: #FAF6EF; --charcoal: #1E1E1E; --gray: #5A5A5A; --gray-light: #9A9A9A;
+    --border: #E0D9D0; --bg-card: #FFFFFF; --bg-page: #F5F0E8;
+    --shadow: 0 2px 16px rgba(15,110,86,0.08); --radius: 12px; --radius-sm: 8px;
+  }
+  body { font-family: 'DM Sans', sans-serif; background: #F5F0E8; color: #1E1E1E; min-height: 100vh; font-size: 15px; line-height: 1.6; }
+
+  /* NAV */
+  nav { background: #0F6E56; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; height: 60px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(0,0,0,0.15); }
+  .nav-logo { font-family: 'DM Serif Display', serif; font-size: 1.5rem; color: #FFFFFF; cursor: pointer; letter-spacing: -0.3px; user-select: none; }
+  .nav-logo span { color: #A8D8D8; }
+  .nav-links { display: flex; align-items: center; gap: 8px; }
+  .nav-btn { background: rgba(255,255,255,0.12); color: #FFFFFF; border: 1.5px solid rgba(255,255,255,0.4); border-radius: 6px; padding: 7px 16px; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: all 0.15s; }
+  .nav-btn:hover { background: rgba(255,255,255,0.25); border-color: rgba(255,255,255,0.7); }
+  .nav-btn.active { background: #FFFFFF; color: #0F6E56; border-color: #FFFFFF; font-weight: 600; }
+  .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 6px; background: rgba(255,255,255,0.12); border: 1.5px solid rgba(255,255,255,0.4); border-radius: 6px; }
+  .hamburger span { display: block; width: 20px; height: 2px; background: white; border-radius: 2px; }
+  .mobile-menu { display: none; position: absolute; top: 60px; left: 0; right: 0; background: #0F6E56; padding: 12px 16px; flex-direction: column; gap: 8px; z-index: 99; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+  .mobile-menu.open { display: flex; }
+  .mobile-menu .nav-btn { width: 100%; text-align: left; padding: 12px 16px; font-size: 0.95rem; }
+
+  /* TABS */
+  .tab { display: none; } .tab.active { display: block; }
+
+  /* LAYOUT */
+  .container { max-width: 760px; margin: 0 auto; padding: 40px 24px 80px; }
+  .card { background: #FFFFFF !important; color: #1E1E1E !important; border-radius: 12px; border: 1px solid #E0D9D0; padding: 24px; box-shadow: 0 2px 16px rgba(15,110,86,0.08); }
+  .card + .card { margin-top: 16px; }
+  .badge { display: inline-block; background: #E1F5EE; color: #0F6E56; border: 1px solid #9FE1CB; border-radius: 20px; padding: 4px 14px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; }
+
+  /* BUTTONS */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; background: #0F6E56; color: #FFFFFF; border: none; border-radius: 8px; padding: 12px 24px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.15s; text-decoration: none; }
+  .btn:hover { background: #1D9E75; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(15,110,86,0.25); }
+  .btn-coral { background: #D85A30; } .btn-coral:hover { background: #993C1D; }
+  .btn-outline { background: transparent; color: #0F6E56; border: 2px solid #0F6E56; } .btn-outline:hover { background: #E1F5EE; transform: translateY(-1px); }
+  .btn-ghost { background: transparent; color: #5A5A5A; border: 1px solid #E0D9D0; } .btn-ghost:hover { background: #FAF6EF; color: #1E1E1E; }
+  .btn-lg { padding: 14px 32px; font-size: 1rem; } .btn-sm { padding: 8px 16px; font-size: 0.82rem; } .btn-block { width: 100%; }
+
+  /* FORMS */
+  .form-label { display: block; font-size: 0.75rem; font-weight: 600; color: #0F6E56; text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 6px; }
+  .form-input, .form-select, .form-textarea { width: 100%; padding: 10px 14px; border: 1.5px solid #E0D9D0; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; color: #1E1E1E; background: #FAF6EF; transition: border-color 0.15s; outline: none; appearance: none; -webkit-appearance: none; }
+  .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: #0F6E56; box-shadow: 0 0 0 3px rgba(15,110,86,0.1); }
+  .form-select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%230F6E56' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 34px; cursor: pointer; }
+  .form-textarea { resize: vertical; min-height: 90px; } .form-group { margin-bottom: 16px; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .toggle-label { display: flex; align-items: center; gap: 8px; font-size: 0.88rem; color: #1E1E1E; cursor: pointer; padding: 4px 0; }
+  .toggle-label input[type="checkbox"] { accent-color: #0F6E56; width: 16px; height: 16px; }
+
+  /* CHIPS */
+  .chip-group { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { padding: 6px 14px; border-radius: 20px; border: 1.5px solid #E0D9D0; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; color: #5A5A5A; background: #FFFFFF; cursor: pointer; transition: all 0.12s; font-weight: 500; }
+  .chip:hover { border-color: #0F6E56; color: #0F6E56; }
+  .chip.active { background: #E1F5EE; border-color: #0F6E56; color: #0F6E56; font-weight: 600; }
+
+  /* TYPOGRAPHY */
+  h1 { font-family: 'DM Serif Display', serif; font-size: 2.4rem; line-height: 1.15; color: #1E1E1E; }
+  h2 { font-family: 'DM Serif Display', serif; font-size: 1.8rem; line-height: 1.2; color: #1E1E1E; }
+  h3 { font-family: 'DM Sans', sans-serif; font-size: 1.05rem; font-weight: 600; color: #1E1E1E; }
+  .section-label { font-size: 0.72rem; font-weight: 600; color: #0F6E56; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; display: block; }
+
+  /* PROGRESS */
+  .progress-track { background: #E0D9D0; border-radius: 20px; height: 6px; }
+  .progress-fill { background: #0F6E56; border-radius: 20px; height: 6px; transition: width 0.4s ease; }
+
+  /* SCORE BUTTONS */
+  .score-btn { padding: 8px 16px; border-radius: 6px; border: 1.5px solid #E0D9D0; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; font-weight: 500; cursor: pointer; background: #FFFFFF; color: #5A5A5A; transition: all 0.12s; }
+  .score-btn.yes { border-color: #0F6E56; background: #E1F5EE; color: #0F6E56; }
+  .score-btn.no { border-color: #D85A30; background: #FAECE7; color: #993C1D; }
+
+  /* TOOL LAYOUT */
+  .tool-layout { display: grid; grid-template-columns: 300px 1fr; min-height: calc(100vh - 60px); }
+  .tool-sidebar { background: #FFFFFF; border-right: 1px solid #E0D9D0; padding: 24px 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 18px; }
+  .tool-output { padding: 28px; overflow-y: auto; background: #F5F0E8; position: relative; min-height: calc(100vh - 60px); }
+
+  /* EMAIL GATE OVERLAY */
+  .email-gate { position: absolute; inset: 0; background: rgba(245,240,232,0.97); display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 48px; text-align: center; gap: 16px; z-index: 10; padding-left: 32px; padding-right: 32px; }
+
+  /* HERO */
+  .hero { background: linear-gradient(135deg, #0F6E56 0%, #085041 100%); padding: 60px 32px 52px; }
+  .hero h1, .hero h2, .hero h3, .hero p, .hero .badge { color: #FFFFFF !important; }
+  .hero em { color: #A8D8D8 !important; }
+  .hero-inner { max-width: 680px; margin: 0 auto; }
+
+  /* GRIDS */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .equal-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: stretch; }
+  .equal-cards > .card { display: flex !important; flex-direction: column !important; }
+  .three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+
+  /* COMPONENTS */
+  .cred-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 1px solid #E0D9D0; }
+  .cred-item:last-child { border-bottom: none; }
+  .cred-dot { width: 8px; height: 8px; background: #0F6E56; border-radius: 50%; margin-top: 6px; flex-shrink: 0; }
+  .approach-item { background: #FAF6EF; border-radius: 8px; padding: 16px; border: 1px solid #E0D9D0; }
+  .teal-card { background: #0F6E56; border-radius: 12px; padding: 24px; color: white; }
+  .dark-teal { background: #085041; border-radius: 12px; padding: 28px; color: white; }
+  .swatch { width: 24px; height: 24px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: border-color 0.15s; display: inline-block; }
+  .swatch.active { border-color: #0F6E56 !important; box-shadow: 0 0 0 2px white; }
+  .passage-tag { background: #E1F5EE; color: #0F6E56; border-radius: 20px; padding: 4px 12px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
+  .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; min-height: 400px; gap: 12px; color: #9A9A9A; }
+  .spinner { width: 36px; height: 36px; border: 3px solid #E0D9D0; border-top-color: #0F6E56; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .divider { border: none; border-top: 1px solid #E0D9D0; margin: 20px 0; }
+  .success-msg { background: #E1F5EE; border: 1px solid #9FE1CB; border-radius: 8px; padding: 16px; font-size: 0.9rem; color: #0F6E56; text-align: center; display: none; }
+  .results-box { background: #E1F5EE !important; border: 1px solid #9FE1CB; border-radius: 8px; padding: 20px; font-size: 0.9rem; line-height: 1.7; color: #1E1E1E !important; margin-bottom: 20px; }
+  #passage-box { border-radius: 12px; padding: 32px; white-space: pre-wrap; min-height: 200px; border: 1px solid #E0D9D0; box-shadow: 0 2px 16px rgba(15,110,86,0.08); transition: background 0.2s, color 0.2s; }
+  .disclaimer { font-size: 0.78rem; color: #9A9A9A; line-height: 1.6; padding: 16px; background: #FAF6EF; border-radius: 8px; border: 1px solid #E0D9D0; margin-top: 16px; }
+  .answer-toggle { font-size: 0.75rem; color: #0F6E56; background: none; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 500; padding: 0; text-decoration: underline; }
+  .answer-reveal { font-size: 0.78rem; color: #0F6E56; background: #E1F5EE; border-radius: 4px; padding: 2px 8px; margin-top: 4px; display: none; font-weight: 500; }
+
+  /* MOBILE */
+  @media (max-width: 640px) {
+    nav { padding: 0 16px; position: relative; }
+    .nav-links { display: none; }
+    .hamburger { display: flex; }
+    .hero { padding: 36px 16px 32px; }
+    .hero-inner h1 { font-size: 2rem; }
+    .container { padding: 24px 16px 60px; }
+    .two-col, .equal-cards { grid-template-columns: 1fr !important; }
+    .three-col, .form-grid { grid-template-columns: 1fr; }
+    .tool-layout { grid-template-columns: 1fr; }
+    .tool-sidebar { border-right: none; border-bottom: 1px solid #E0D9D0; }
+    .tool-output { padding: 16px; min-height: 320px; }
+    .email-gate { position: relative; inset: auto; min-height: 280px; border-radius: 12px; margin-top: 16px; background: #FFFFFF !important; border: 1px solid #E0D9D0; }
+    h1 { font-size: 1.9rem; }
+    h2 { font-size: 1.5rem; }
+    .btn-lg { padding: 12px 20px; font-size: 0.92rem; }
+    .equal-cards .card { min-height: auto !important; }
+  }
+  @media (max-width: 400px) {
+    .hero-inner h1 { font-size: 1.7rem; }
+    .card { padding: 16px !important; }
+  }
+
+
+  /* PRODUCT STRATEGY ADDITIONS */
+  .hero-split { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 28px; align-items: center; max-width: 980px; margin: 0 auto; }
+  .hero-panel { background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.32); border-radius: 16px; padding: 18px; box-shadow: 0 10px 32px rgba(0,0,0,0.18); }
+  .mini-ui { background: #FFFFFF; border-radius: 12px; overflow: hidden; border: 1px solid #E0D9D0; box-shadow: 0 4px 18px rgba(0,0,0,0.08); }
+  .mini-ui-bar { background: #FFFFFF; padding: 10px 12px; display: flex; gap: 6px; align-items: center; border-bottom: 1px solid #E0D9D0; }
+  .mini-dot { width: 9px; height: 9px; border-radius: 50%; background: #D8D0C6; }
+  .mini-ui-body { padding: 18px; color: #1E1E1E !important; background: #FFFFFF; }
+  .mini-ui-title { font-size:0.76rem; font-weight:700; color:#0F6E56 !important; text-transform:uppercase; letter-spacing:0.7px; margin-bottom:6px; }
+  .mini-ui-text { font-family:'Atkinson Hyperlegible', sans-serif; font-size:0.9rem; line-height:1.9; color:#1E1E1E !important; letter-spacing:0.2px; }
+  .mini-ui-text strong { color:#0F6E56 !important; font-weight:700; }
+  .mini-ui .passage-tag { background:#DDF6ED !important; color:#075C48 !important; border:1px solid #9FE1CB; font-size:0.72rem; font-weight:700; }
+  /* Hero mockup text must override global hero white text rule */
+  .hero .mini-ui,
+  .hero .mini-ui p,
+  .hero .mini-ui span,
+  .hero .mini-ui div { color: #1E1E1E !important; }
+  .hero .mini-ui .mini-ui-bar span { color: #5A5A5A !important; }
+  .hero .mini-ui .mini-ui-title { color: #0F6E56 !important; }
+  .hero .mini-ui .mini-ui-text { color: #1E1E1E !important; }
+  .hero .mini-ui .mini-ui-text strong { color: #0F6E56 !important; font-weight: 700; }
+  .hero .mini-ui .passage-tag { color:#075C48 !important; background:#DDF6ED !important; border:1px solid #9FE1CB; }
+
+
+
+  /* LITERACY GROUP FEATURE */
+  .group-feature {
+    background: #FFFFFF;
+    border: 2px solid #D85A30;
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 22px rgba(216,90,48,0.10);
+  }
+  .group-feature-grid {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 24px;
+    align-items: stretch;
+  }
+  .group-price-box {
+    background: #0F6E56;
+    color: #FFFFFF;
+    border-radius: 12px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .group-price-box .price {
+    color: #FFFFFF;
+    font-size: 2.8rem;
+  }
+  .group-points {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 18px 0;
+  }
+  .group-point {
+    background: #FAF6EF;
+    border: 1px solid #E0D9D0;
+    border-radius: 9px;
+    padding: 13px;
+    font-size: 0.86rem;
+    color: #5A5A5A;
+  }
+  .group-point strong { color: #1E1E1E; display:block; margin-bottom:3px; }
+  .group-faq {
+    background: #FAF6EF;
+    border: 1px solid #E0D9D0;
+    border-radius: 12px;
+    padding: 18px;
+  }
+  @media (max-width: 820px) {
+    .group-feature-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 640px) {
+    .group-feature { padding: 20px; }
+    .group-points { grid-template-columns: 1fr; }
+  }
+
+  .price-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .price-card { background: #FFFFFF; border: 1px solid #E0D9D0; border-radius: 12px; padding: 18px; box-shadow: 0 2px 16px rgba(15,110,86,0.08); display: flex; flex-direction: column; gap: 10px; }
+  .price-card.featured { border: 2px solid #D85A30; position: relative; }
+  .price { font-family: 'DM Serif Display', serif; font-size: 2.3rem; line-height: 1; color: #1E1E1E; }
+  .credit-pill { display: inline-block; background: #E1F5EE; color: #0F6E56; border-radius: 20px; padding: 4px 10px; font-size: 0.75rem; font-weight: 700; }
+  .feature-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; font-size: 0.86rem; color: #5A5A5A; }
+  .feature-list li { display: flex; gap: 7px; }
+  .feature-list li span { color: #0F6E56; font-weight: 700; }
+  .centered { text-align: center; }
+  @media (max-width: 820px) { .hero-split, .price-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo" onclick="showTab('home'); closeMobileMenu();">Lit<span>Access</span></div>
+  <div class="nav-links">
+    <button class="nav-btn active" id="nav-home" onclick="showTab('home')">Home</button>
+    <button class="nav-btn" id="nav-tool" onclick="showTab('tool')">Free Generator</button>
+    <button class="nav-btn" id="nav-pricing" onclick="showTab('pricing')">Literacy Groups</button>
+    <button class="nav-btn" id="nav-screener" onclick="showTab('screener')">Free Screener</button>
+    <button class="nav-btn" id="nav-about" onclick="showTab('about')">About</button>
+  </div>
+  <div class="hamburger" onclick="toggleMobileMenu()">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+<div class="mobile-menu" id="mobile-menu">
+  <button class="nav-btn" onclick="showTab('home'); closeMobileMenu();">Home</button>
+  <button class="nav-btn" onclick="showTab('tool'); closeMobileMenu();">Free Generator</button>
+  <button class="nav-btn" onclick="showTab('pricing'); closeMobileMenu();">Literacy Groups</button>
+  <button class="nav-btn" onclick="showTab('screener'); closeMobileMenu();">Free Screener</button>
+  <button class="nav-btn" onclick="showTab('about'); closeMobileMenu();">About</button>
+</div>
+
+<!-- HOME -->
+<div class="tab active" id="tab-home">
+  <div class="hero">
+    <div class="hero-split">
+      <div>
+        <div class="badge" style="background:rgba(255,255,255,0.15); border-color:rgba(255,255,255,0.3); margin-bottom:16px;">Free Resources + Virtual K–5 Literacy Groups</div>
+        <h1 style="font-size:2.8rem; margin-bottom:14px;">Literacy support.<br><em>Made accessible.</em></h1>
+        <p style="font-size:1.05rem; line-height:1.7; margin-bottom:28px; max-width:560px; font-weight:300;">Free literacy tools and resources for families and educators, plus virtual small-group literacy instruction for K–5 students, developed by a certified, practicing SLP.</p>
+        <div style="display:flex; gap:12px; flex-wrap:wrap;">
+          <button class="btn btn-lg" style="background:#FFFFFF; color:#0F6E56;" onclick="showTab('tool')">Explore free resources</button>
+          <button class="btn btn-lg" style="background:rgba(255,255,255,0.15); color:#FFFFFF; border:2px solid rgba(255,255,255,0.5);" onclick="showTab('pricing')">Explore literacy groups</button>
+        </div>
+        <p style="font-size:0.78rem; color:rgba(255,255,255,0.7); margin-top:14px;">Free to use. Developed by a certified, practicing SLP. LitAccess is an educational literacy resource and instruction company.</p>
+      </div>
+      <div class="hero-panel">
+        <div class="mini-ui">
+          <div class="mini-ui-bar"><span class="mini-dot"></span><span class="mini-dot"></span><span class="mini-dot"></span><span style="font-size:0.72rem; color:#5A5A5A !important; margin-left:6px;">LitAccess Generator</span></div>
+          <div class="mini-ui-body">
+            <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px;">
+              <span class="passage-tag">2nd grade</span><span class="passage-tag">consonant blends</span><span class="passage-tag">dinosaurs</span>
+            </div>
+            <div class="mini-ui-title">Word list</div>
+            <p class="mini-ui-text" style="margin-bottom:14px;"><strong>stomp</strong> - walk heavily<br><strong>crest</strong> - top part</p>
+            <div class="mini-ui-title">Passage</div>
+            <p class="mini-ui-text">The big dino can <strong>stomp</strong> and <strong>sprint</strong>. It has a flat <strong>crest</strong>. The dino rests in the sand.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="card" style="margin-bottom:20px;">
+      <div class="section-label">Free literacy tools & resources</div>
+      <h2 style="font-size:1.5rem; margin-bottom:8px;">Resources you can use right away.</h2>
+      <p style="font-size:0.9rem; color:#5A5A5A; line-height:1.7; margin-bottom:18px;">
+        LitAccess gives parents and educators free tools for identifying literacy needs, creating targeted practice, and supporting developing readers.
+      </p>
+      <div class="equal-cards">
+        <div class="card" style="margin-bottom:0; border-left:4px solid #0F6E56;">
+          <div class="section-label">Literacy generator</div>
+          <h3 style="margin-bottom:6px;">Create targeted reading material.</h3>
+          <p style="font-size:0.88rem; color:#5A5A5A; line-height:1.6; margin-bottom:14px;">Generate decodable and fluency passages based on grade level, phonics skills, vocabulary, and topic.</p>
+          <button class="btn btn-outline" onclick="showTab('tool')">Open the generator</button>
+        </div>
+        <div class="card" style="margin-bottom:0; border-left:4px solid #D85A30;">
+          <div class="section-label" style="color:#D85A30;">Free screener</div>
+          <h3 style="margin-bottom:6px;">Find a starting point.</h3>
+          <p style="font-size:0.88rem; color:#5A5A5A; line-height:1.6; margin-bottom:14px;">Use the quick literacy screener to identify a likely skill to target, then build practice around it.</p>
+          <button class="btn btn-coral" onclick="showTab('screener')">Take the screener</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="group-feature">
+      <div class="section-label" style="color:#D85A30;">K–5 Small-Group Literacy</div>
+      <div class="group-feature-grid">
+        <div>
+          <h2 style="font-size:1.85rem; margin-bottom:10px;">Virtual small-group literacy instruction that gives kids more support.</h2>
+          <p style="font-size:0.95rem; color:#5A5A5A; line-height:1.75; margin-bottom:10px;">
+            LitAccess groups give elementary students a chance to learn and practice reading skills in a small, supportive online group.
+            Students are grouped by reading level so instruction can be matched to the skills they are working on.
+          </p>
+          <div class="group-points">
+            <div class="group-point"><strong>Small groups</strong>4–6 students</div>
+            <div class="group-point"><strong>Weekly instruction</strong>45 minutes online</div>
+            <div class="group-point"><strong>Leveled groups</strong>Students with similar reading needs</div>
+            <div class="group-point"><strong>Instruction + practice</strong>Explicit teaching followed by guided practice</div>
+          </div>
+          <p style="font-size:0.84rem; color:#5A5A5A; line-height:1.65; margin-bottom:18px;">
+            <strong>Led by a certified, practicing SLP.</strong> These are educational literacy groups, not speech-language therapy, evaluations, or individualized clinical services.
+          </p>
+          <button class="btn btn-coral btn-lg" onclick="showTab('pricing')">See how literacy groups work</button>
+        </div>
+        <div class="group-price-box">
+          <div style="font-size:0.72rem; text-transform:uppercase; letter-spacing:0.8px; font-weight:700; color:rgba(255,255,255,0.7); margin-bottom:8px;">Monthly enrollment</div>
+          <div class="price">$199</div>
+          <div style="font-size:0.9rem; color:rgba(255,255,255,0.85); margin-bottom:18px;">per child / month</div>
+          <div style="border-top:1px solid rgba(255,255,255,0.2); padding-top:16px; font-size:0.88rem; line-height:1.65;">
+            One 45-minute group each week<br>
+            Small group of 4–6 students<br>
+            Leveled literacy instruction<br>
+            LitAccess materials included
+          </div>
+          <button class="btn btn-lg" style="background:#FFFFFF; color:#0F6E56; margin-top:20px;" onclick="showTab('pricing')">Learn about groups</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:20px;">
+      <div class="section-label">How groups work</div>
+      <h2 style="font-size:1.5rem; margin-bottom:12px;">Learn. Practice. Read. Talk.</h2>
+      <p style="font-size:0.9rem; color:#5A5A5A; line-height:1.7; margin-bottom:16px;">Each 45-minute group combines explicit literacy instruction with supported opportunities to use the skill right away.</p>
+      <div class="two-col" style="gap:10px;">
+        <div style="background:#FAF6EF; border-radius:8px; padding:16px; border:1px solid #E0D9D0;"><div style="font-weight:600; font-size:0.9rem; margin-bottom:5px; color:#1E1E1E;">Learn</div><p style="font-size:0.85rem; color:#5A5A5A; line-height:1.6;">Direct instruction in the reading skills the group is working on.</p></div>
+        <div style="background:#FAF6EF; border-radius:8px; padding:16px; border:1px solid #E0D9D0;"><div style="font-weight:600; font-size:0.9rem; margin-bottom:5px; color:#1E1E1E;">Practice</div><p style="font-size:0.85rem; color:#5A5A5A; line-height:1.6;">Guided reading and targeted practice with immediate support.</p></div>
+        <div style="background:#FAF6EF; border-radius:8px; padding:16px; border:1px solid #E0D9D0;"><div style="font-weight:600; font-size:0.9rem; margin-bottom:5px; color:#1E1E1E;">Read</div><p style="font-size:0.85rem; color:#5A5A5A; line-height:1.6;">Work with appropriately leveled texts and literacy activities.</p></div>
+        <div style="background:#FAF6EF; border-radius:8px; padding:16px; border:1px solid #E0D9D0;"><div style="font-weight:600; font-size:0.9rem; margin-bottom:5px; color:#1E1E1E;">Talk</div><p style="font-size:0.85rem; color:#5A5A5A; line-height:1.6;">Build comprehension, vocabulary, and confidence through discussion.</p></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:20px;">
+      <div class="section-label">Why LitAccess</div>
+      <h2 style="font-size:1.5rem; margin-bottom:12px;">Built around what developing readers need.</h2>
+      <p style="font-size:0.9rem; color:#5A5A5A; line-height:1.7; margin-bottom:16px;">
+        LitAccess makes literacy support easier to access, easier to use, and easier to match to the student in front of you.
+      </p>
+      <div class="two-col" style="gap:10px;">
+        <div style="background:#FAF6EF; border-radius:8px; padding:16px; border:1px solid #E0D9D0;">
+          <div style="font-weight:600; font-size:0.9rem; margin-bottom:5px; color:#1E1E1E;">Targeted support</div>
+          <p style="font-size:0.85rem; color:#5A5A5A; line-height:1.6;">Focus practice on the reading skills students are actually working on.</p>
+        </div>
+        <div style="background:#FAF6EF; border-radius:8px; padding:16px; border:1px solid #E0D9D0;">
+          <div style="font-weight:600; font-size:0.9rem; margin-bottom:5px; color:#1E1E1E;">Appropriate reading levels</div>
+          <p style="font-size:0.85rem; color:#5A5A5A; line-height:1.6;">Use materials that are designed with different reading levels and skill needs in mind.</p>
+        </div>
+        <div style="background:#FAF6EF; border-radius:8px; padding:16px; border:1px solid #E0D9D0;">
+          <div style="font-weight:600; font-size:0.9rem; margin-bottom:5px; color:#1E1E1E;">Ready to use</div>
+          <p style="font-size:0.85rem; color:#5A5A5A; line-height:1.6;">Spend less time creating materials and more time teaching, practicing, and reading.</p>
+        </div>
+        <div style="background:#FAF6EF; border-radius:8px; padding:16px; border:1px solid #E0D9D0;">
+          <div style="font-weight:600; font-size:0.9rem; margin-bottom:5px; color:#1E1E1E;">Small-group learning</div>
+          <p style="font-size:0.85rem; color:#5A5A5A; line-height:1.6;">Give students more opportunities to participate, practice, and get feedback.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="teal-card" style="margin-bottom:20px;">
+      <div class="section-label" style="color:rgba(255,255,255,0.65);">Who LitAccess is for</div>
+      <h2 style="color:white; font-size:1.5rem; margin-bottom:16px;">For families and the people supporting developing readers.</h2>
+      <div class="two-col" style="gap:10px;">
+        <div style="background:rgba(255,255,255,0.1); border-radius:8px; padding:14px; font-size:0.88rem; color:white; line-height:1.5; border:1px solid rgba(255,255,255,0.15);">Parents looking for practical literacy support at home</div>
+        <div style="background:rgba(255,255,255,0.1); border-radius:8px; padding:14px; font-size:0.88rem; color:white; line-height:1.5; border:1px solid rgba(255,255,255,0.15);">SLPs supporting decoding, language, and literacy goals</div>
+        <div style="background:rgba(255,255,255,0.1); border-radius:8px; padding:14px; font-size:0.88rem; color:white; line-height:1.5; border:1px solid rgba(255,255,255,0.15);">Teachers, tutors, and interventionists who need ready-to-use material</div>
+        <div style="background:rgba(255,255,255,0.1); border-radius:8px; padding:14px; font-size:0.88rem; color:white; line-height:1.5; border:1px solid rgba(255,255,255,0.15);">Literacy specialists supporting students at different reading levels</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:20px; text-align:center; padding:28px;">
+      <div class="section-label">Start with LitAccess</div>
+      <h2 style="font-size:1.55rem; margin-bottom:8px;">Free literacy resources. More support when you need it.</h2>
+      <p style="font-size:0.9rem; color:#5A5A5A; line-height:1.7; margin-bottom:18px;">Explore the free tools or learn more about virtual small-group literacy instruction for K–5 students.</p>
+      <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+        <button class="btn btn-outline" onclick="showTab('tool')">Explore free resources</button>
+        <button class="btn btn-coral" onclick="showTab('pricing')">Explore literacy groups</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PRICING -->
+<div class="tab" id="tab-pricing">
+  <div class="hero">
+    <div class="hero-inner centered">
+      <div class="badge" style="background:rgba(255,255,255,0.15); border-color:rgba(255,255,255,0.3); margin-bottom:16px;">Online Literacy Groups</div>
+      <h1 style="margin-bottom:14px;">Small-group literacy instruction for K–5.</h1>
+      <p style="font-size:1.02rem; line-height:1.7; margin:0 auto 24px; max-width:560px; font-weight:300;">Students meet once a week in small, leveled groups for explicit literacy instruction and guided practice.</p>
+    </div>
+  </div>
+  <div class="container" style="max-width:760px;">
+    <div class="card" style="border:2px solid #D85A30; margin-bottom:20px;">
+      <div class="section-label" style="color:#D85A30;">K–5 Literacy Group</div>
+      <h2 style="font-size:1.8rem; margin-bottom:8px;">$199 <span style="font-family:'DM Sans',sans-serif; font-size:0.9rem; color:#5A5A5A; font-weight:400;">/ month</span></h2>
+      <p style="font-size:0.92rem; color:#5A5A5A; line-height:1.7; margin-bottom:18px;">One weekly 45-minute online literacy group for your child.</p>
+      <ul class="feature-list" style="margin-bottom:20px;">
+        <li><span>&#10003;</span> Small groups of 4–6 students</li>
+        <li><span>&#10003;</span> Groups organized by reading level</li>
+        <li><span>&#10003;</span> Explicit literacy instruction</li>
+        <li><span>&#10003;</span> Guided reading practice</li>
+        <li><span>&#10003;</span> LitAccess materials included</li>
+      </ul>
+      <p style="font-size:0.82rem; color:#5A5A5A; line-height:1.6; margin-bottom:18px;"><strong>Educational literacy instruction, not speech-language therapy or an individualized clinical service.</strong></p>
+      <button class="btn btn-coral btn-lg" onclick="document.getElementById('group-interest-form').style.display='block'; this.style.display='none'; document.getElementById('group-interest-form').scrollIntoView({behavior:'smooth', block:'center'});">Request a free group-fit consultation</button>
+      <div id="group-interest-form" style="display:none; margin-top:20px; padding:20px; background:#FAF6EF; border:1px solid #E0D9D0; border-radius:10px;">
+        <div class="section-label">Group interest</div>
+        <h3 style="font-size:1.25rem; margin-bottom:8px;">Let’s find the right group for your child.</h3>
+        <p style="font-size:0.88rem; color:#5A5A5A; line-height:1.6; margin-bottom:16px;">Tell us a little about your child, and we'll contact you for a free consultation to talk through their needs and help determine which group may be the best fit.</p>
+        <form onsubmit="submitGroupInterest(event)">
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+            <div><label class="form-label">Parent / caregiver name</label><input class="form-input" type="text" id="group-name" required placeholder="Your name"></div>
+            <div><label class="form-label">Email</label><input class="form-input" type="email" id="group-email" required placeholder="you@example.com"></div>
+            <div><label class="form-label">Child's grade</label><select class="form-select" id="group-grade" required><option value="">Select grade</option><option>Kindergarten</option><option>1st grade</option><option>2nd grade</option><option>3rd grade</option><option>4th grade</option><option>5th grade</option></select></div>
+            <div><label class="form-label">What would you like us to know?</label><input class="form-input" type="text" id="group-notes" placeholder="Optional"></div>
+          </div>
+          <button class="btn btn-coral" type="submit" style="margin-top:14px;">Request my free consultation</button>
+          <div id="group-interest-status" style="font-size:0.85rem; margin-top:10px;"></div>
+        </form>
+      </div>
+    </div>
+    <div class="group-faq">
+      <div class="section-label">Questions?</div>
+      <h2 style="font-size:1.6rem; margin-bottom:16px;">What parents should know about LitAccess groups</h2>
+      <div style="display:flex; flex-direction:column; gap:18px;">
+        <div>
+          <h3>Who are these groups for?</h3>
+          <p style="font-size:0.9rem; color:#5A5A5A; line-height:1.7;">Groups are designed for K–5 students who would benefit from additional structured literacy instruction and guided practice in a small-group setting.</p>
+        </div>
+        <div>
+          <h3>What happens during a group?</h3>
+          <p style="font-size:0.9rem; color:#5A5A5A; line-height:1.7;">Students receive direct literacy instruction, work on skills at their instructional level, and have guided opportunities to practice what they're learning through reading, discussion, and other activities.</p>
+        </div>
+        <div>
+          <h3>How are students grouped?</h3>
+          <p style="font-size:0.9rem; color:#5A5A5A; line-height:1.7;">Students are grouped by grade, reading skills, and instructional needs so they can learn and practice at an appropriate level with peers who have similar needs.</p>
+        </div>
+        <div>
+          <h3>Is this therapy?</h3>
+          <p style="font-size:0.9rem; color:#5A5A5A; line-height:1.7;">No. LitAccess groups are educational literacy instruction, not speech-language therapy, evaluations, or individualized clinical services. Groups are led by a certified, practicing SLP, but the service is educational rather than clinical.</p>
+        </div>
+        <div>
+          <h3>How often do students meet?</h3>
+          <p style="font-size:0.9rem; color:#5A5A5A; line-height:1.7;">Groups meet once a week for 45 minutes.</p>
+        </div>
+        <div>
+          <h3>What does it cost?</h3>
+          <p style="font-size:0.9rem; color:#5A5A5A; line-height:1.7;">Groups are $199 per month per student and include one 45-minute group session each week, small-group instruction, and LitAccess materials.</p>
+        </div>
+        <div>
+          <h3>What if my child needs a different level?</h3>
+          <p style="font-size:0.9rem; color:#5A5A5A; line-height:1.7;">That's okay. We'll help determine which group is the best fit for your child based on their current reading skills and instructional needs. As your child grows and develops new skills, their group placement may change as needed.</p>
+        </div>
+      </div>
+        <div style="margin-top: 22px;">
+          <h3>How do I know which group is right for my child?</h3>
+          <p style="font-size:0.9rem; color:#5A5A5A; line-height:1.7;">Request a free group-fit consultation. We'll learn a little about your child's current reading skills and help determine which group may be the best fit.</p>
+        </div>
+    </div>
+    </div>
+  </div>
+</div>
+<!-- SCREENER -->
+<div class="tab" id="tab-screener">
+  <div class="container" style="max-width:640px;">
+    <div id="screener-intro">
+      <div class="badge" style="margin-bottom:16px;">Free Tool</div>
+      <h1 style="margin-bottom:12px; color:#1E1E1E;">Free literacy screener</h1>
+      <p style="font-size:0.95rem; color:#5A5A5A; line-height:1.7; margin-bottom:12px;">A quick educational snapshot of decoding skills that can help identify areas where a student may benefit from additional literacy practice. Administer each task aloud and mark each item correct or incorrect.</p>
+      <p style="font-size:0.85rem; color:#9A9A9A; margin-bottom:28px;">Items are randomized each time so results stay fresh across sessions. This tool is for educational use only. It is not a diagnostic evaluation or a substitute for a professional assessment.</p>
+      <button class="btn btn-lg" onclick="startScreener()">Start screener</button>
+    </div>
+    <div id="screener-body" style="display:none;">
+      <div style="margin-bottom:24px;">
+        <div style="display:flex; justify-content:space-between; font-size:0.82rem; color:#5A5A5A; margin-bottom:8px;"><span id="step-label">Step 1 of 5</span><span id="step-pct" style="color:#0F6E56; font-weight:600;">0% complete</span></div>
+        <div class="progress-track"><div class="progress-fill" id="step-bar" style="width:0%;"></div></div>
+      </div>
+      <div class="card" style="margin-bottom:20px;">
+        <h3 id="step-title" style="margin-bottom:6px;"></h3>
+        <p id="step-instr" style="font-size:0.85rem; color:#5A5A5A; margin-bottom:20px; line-height:1.6;"></p>
+        <div id="step-items"></div>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <button class="btn btn-ghost" onclick="prevStep()">Back</button>
+        <button class="btn" id="next-btn" onclick="nextStep()">Next</button>
+      </div>
+    </div>
+    <div id="screener-results" style="display:none;">
+      <h2 style="margin-bottom:20px; color:#1E1E1E;">Screener results</h2>
+      <div id="score-bars" style="margin-bottom:24px;"></div>
+      <div class="results-box" id="results-text">Analyzing results...</div><p style="font-size:0.78rem; color:#8A8A8A; line-height:1.6; margin:12px 0 20px;">These results are intended to support educational planning and practice. They do not diagnose a reading, language, or learning disorder and should not be interpreted as a clinical evaluation.</p>
+      <div style="display:flex; gap:12px; flex-wrap:wrap;">
+        <button class="btn btn-coral" onclick="showTab('tool')">Try the passage generator</button>
+        <button class="btn btn-outline" onclick="showTab('pricing')">View literacy groups</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- GENERATOR -->
+<div class="tab" id="tab-tool">
+  <div class="tool-layout">
+    <div class="tool-sidebar">
+      <div><label class="form-label">Grade level</label><div class="chip-group"><button class="chip active" id="grade-K" onclick="setGrade('K')">K</button><button class="chip" id="grade-1st" onclick="setGrade('1st')">1st</button><button class="chip" id="grade-2nd" onclick="setGrade('2nd')">2nd</button><button class="chip" id="grade-3rd" onclick="setGrade('3rd')">3rd</button><button class="chip" id="grade-4th" onclick="setGrade('4th')">4th</button><button class="chip" id="grade-5th" onclick="setGrade('5th')">5th</button></div></div>
+      <div><label class="form-label">Target phonics skill</label><select class="form-select" id="skill-sel"><option>CVC words</option><option>Consonant blends</option><option>Digraphs (sh, ch, th, wh)</option><option>Short vowels</option><option>Long vowels (silent e)</option><option>Vowel teams</option><option>R-controlled vowels</option><option>Multisyllabic words</option><option>Sight words</option></select></div>
+      <div><label class="form-label">Vocabulary focus</label><select class="form-select" id="vocab-sel"><option>None</option><option>Tier 2 academic vocabulary</option><option>Prefixes (un-, re-, pre-, dis-)</option><option>Suffixes (-ing, -ed, -ly, -ness)</option><option>Root words</option><option>Compound words</option></select></div>
+      <div><label class="form-label">Topic / interest</label><select class="form-select" id="topic-sel" onchange="checkCustom()"><option>Animals</option><option>Dinosaurs</option><option>Sports</option><option>Space</option><option>Ocean</option><option>Superheroes</option><option>Nature</option><option>Food</option><option>Custom</option></select><input type="text" id="custom-topic" class="form-input" placeholder="Type your topic..." style="display:none; margin-top:8px;"></div>
+      <div><label class="form-label">Passage length</label><div class="chip-group"><button class="chip active" id="len-short" onclick="setLen('short')">Short</button><button class="chip" id="len-medium" onclick="setLen('medium')">Medium</button><button class="chip" id="len-long" onclick="setLen('long')">Long</button></div></div>
+      <div style="background:#FAF6EF; border-radius:8px; padding:14px; border:1px solid #E0D9D0; display:flex; flex-direction:column; gap:8px;"><label class="form-label" style="margin-bottom:4px;">Mode</label><label class="toggle-label"><input type="radio" name="gen-mode" value="decode" checked onchange="setMode('decode')" style="accent-color:#0F6E56; width:16px; height:16px;"> Decodable passage</label><label class="toggle-label"><input type="radio" name="gen-mode" value="fluency" onchange="setMode('fluency')" style="accent-color:#0F6E56; width:16px; height:16px;"> Fluency passage + timer</label></div>
+      <div id="decode-extras" style="background:#FAF6EF; border-radius:8px; padding:14px; border:1px solid #E0D9D0; display:flex; flex-direction:column; gap:8px;"><label class="form-label" style="margin-bottom:4px;">Extras</label><label class="toggle-label"><input type="checkbox" id="tog-comprq" checked> Comprehension questions</label><label class="toggle-label"><input type="checkbox" id="tog-wordlist" checked> Word list</label><label class="toggle-label"><input type="checkbox" id="tog-morph"> Highlight morphemes</label></div>
+      <button class="btn btn-coral btn-block" id="gen-btn" onclick="handleGenerate()">Generate passage</button>
+      <hr class="divider">
+      <div style="display:flex; flex-direction:column; gap:14px;">
+        <label class="form-label" style="margin-bottom:0;">Display settings</label>
+        <div><label class="form-label">Background</label><div style="display:flex; gap:6px; flex-wrap:wrap;"><div class="swatch active" style="background:#FAF6EF;" onclick="setBg(this,'#FAF6EF','#1E1E1E')"></div><div class="swatch" style="background:#FEFDE8; border-color:#E0D9D0;" onclick="setBg(this,'#FEFDE8','#1E1E1E')"></div><div class="swatch" style="background:#EAF4FB; border-color:#E0D9D0;" onclick="setBg(this,'#EAF4FB','#1A2E3B')"></div><div class="swatch" style="background:#EAF6EE; border-color:#E0D9D0;" onclick="setBg(this,'#EAF6EE','#1A3022')"></div><div class="swatch" style="background:#FDF0F0; border-color:#E0D9D0;" onclick="setBg(this,'#FDF0F0','#3B1A1A')"></div><div class="swatch" style="background:#FFFFFF; border-color:#E0D9D0;" onclick="setBg(this,'#FFFFFF','#1E1E1E')"></div><div class="swatch" style="background:#1E1E2E; border-color:#333;" onclick="setBg(this,'#1E1E2E','#E8E8F0')"></div></div></div>
+        <div><label class="form-label">Font</label><select class="form-select" id="font-sel" onchange="updateDisplay()"><option value="'Atkinson Hyperlegible', sans-serif">Atkinson Hyperlegible</option><option value="OpenDyslexic, sans-serif">OpenDyslexic</option><option value="'DM Sans', sans-serif">DM Sans</option><option value="Georgia, serif">Georgia (Serif)</option></select></div>
+        <div><label class="form-label">Font size: <span id="fs-val">18</span>px</label><input type="range" min="14" max="28" value="18" id="font-size" oninput="updateDisplay(); document.getElementById('fs-val').textContent=this.value" style="width:100%; accent-color:#0F6E56;"></div>
+        <div><label class="form-label">Line spacing: <span id="lh-val">1.9</span>x</label><input type="range" min="1.4" max="2.8" step="0.1" value="1.9" id="line-h" oninput="updateDisplay(); document.getElementById('lh-val').textContent=parseFloat(this.value).toFixed(1)" style="width:100%; accent-color:#0F6E56;"></div>
+        <div><label class="form-label">Letter spacing: <span id="ls-val">0.5</span>px</label><input type="range" min="0" max="3" step="0.25" value="0.5" id="letter-s" oninput="updateDisplay(); document.getElementById('ls-val').textContent=parseFloat(this.value).toFixed(2)" style="width:100%; accent-color:#0F6E56;"></div>
+      </div>
+    </div>
+    <div class="tool-output">
+      <div class="email-gate" id="email-gate">
+        <div style="font-size:2.5rem; opacity:0.5;">&#9998;</div>
+        <h2 style="font-size:1.6rem; margin-bottom:8px; color:#1E1E1E;">Get free LitAccess access</h2>
+        <p style="font-size:0.92rem; color:#5A5A5A; max-width:320px; line-height:1.7; margin-bottom:4px;">Sign up to use the free literacy tools and resources. Tell us how you support literacy so we can make LitAccess more useful to you.</p>
+        <div style="width:100%; max-width:300px; display:flex; flex-direction:column; gap:10px;">
+          <input type="email" id="gate-email" class="form-input" placeholder="your@email.com" style="text-align:center;">
+          <select id="gate-role" class="form-select">
+            <option value="">I am a...</option>
+            <option>Parent / caregiver</option>
+            <option>Teacher</option>
+            <option>SLP</option>
+            <option>Special educator</option>
+            <option>Tutor / reading specialist</option>
+            <option>Other education professional</option>
+          </select>
+          <button class="btn btn-coral btn-lg btn-block" onclick="submitGate()">Get free access</button>
+        </div>
+        <p style="font-size:0.75rem; color:#9A9A9A;">No spam. Unsubscribe anytime.</p>
+      </div>
+      <div class="empty-state" id="passage-empty" style="display:none;"><div style="font-size:3rem; opacity:0.25;">&#128196;</div><h3 style="color:#9A9A9A; font-weight:500;">Your passage will appear here</h3><p style="font-size:0.85rem; max-width:260px; line-height:1.6;">Configure options on the left and click Generate passage.</p></div>
+      <div id="passage-loading" style="display:none;" class="empty-state"><div class="spinner"></div><p style="font-size:0.9rem; color:#5A5A5A;">Crafting your passage...</p></div>
+      <div id="passage-output" style="display:none;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; flex-wrap:wrap; gap:10px;"><div id="passage-tags" style="display:flex; gap:6px; flex-wrap:wrap;"></div><button class="btn btn-ghost btn-sm" onclick="generatePassage()">Regenerate</button></div>
+        <div id="passage-box" style="background:#FAF6EF; color:#1E1E1E; font-family:'Atkinson Hyperlegible', sans-serif; font-size:18px; line-height:1.9; letter-spacing:0.5px;"></div>
+        <div id="fluency-panel" style="display:none;">
+          <!-- Step 1: Ready screen shown before passage is revealed -->
+          <div id="fluency-ready" style="background:#0F6E56; border-radius:12px; padding:32px; text-align:center; margin-top:16px;">
+            <div style="font-size:0.72rem; font-weight:600; color:rgba(255,255,255,0.7); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:12px;">Fluency Timer</div>
+            <h3 style="color:#FFFFFF; font-family:'DM Serif Display',serif; font-size:1.4rem; margin-bottom:10px;">Ready to begin?</h3>
+            <p style="font-size:0.88rem; color:rgba(255,255,255,0.85); line-height:1.7; margin-bottom:24px; max-width:340px; margin-left:auto; margin-right:auto;">When you click Start, the passage will appear and the 60-second timer will begin. Have your student ready to read aloud immediately.</p>
+            <button class="btn btn-lg" style="background:#FFFFFF; color:#0F6E56; font-size:1rem;" onclick="revealAndStart()">Start, reveal passage</button>
+          </div>
+          <!-- Step 2: Timer shown while reading (passage already visible above) -->
+          <div id="fluency-running" style="display:none; background:#FFFFFF; border-radius:12px; border:1px solid #E0D9D0; padding:20px; margin-top:16px; text-align:center;">
+            <div style="font-size:0.72rem; font-weight:600; color:#0F6E56; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:8px;">Time remaining</div>
+            <div id="fluency-clock" style="font-family:'DM Serif Display',serif; font-size:4rem; color:#1E1E1E; line-height:1; margin-bottom:16px;">1:00</div>
+            <div style="display:flex; gap:10px; justify-content:center;">
+              <button class="btn btn-coral btn-lg" onclick="stopFluencyTimer()">Stop</button>
+              <button class="btn btn-ghost btn-lg" onclick="resetFluencyTimer()">Reset</button>
+            </div>
+          </div>
+          <!-- Step 3: Entry form after timer ends -->
+          <div id="fluency-entry" style="display:none; background:#FFFFFF; border-radius:12px; border:1px solid #E0D9D0; padding:20px; margin-top:16px;">
+            <div style="font-size:0.72rem; font-weight:600; color:#0F6E56; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:8px;">Time's up!</div>
+            <label class="form-label">Words read correctly in 60 seconds</label>
+            <div style="display:flex; gap:10px; align-items:center; margin-top:6px;">
+              <input type="number" id="wpm-input" class="form-input" placeholder="e.g. 87" min="0" max="300" style="max-width:140px;">
+              <button class="btn btn-coral" onclick="scoreFluency()">Get score</button>
+            </div>
+            <button class="btn btn-ghost btn-sm" style="margin-top:12px;" onclick="resetFluencyTimer()">Start over</button>
+          </div>
+          <div id="fluency-result" style="display:none; margin-top:16px;"></div>
+        </div>
+      </div>
+    </div>
+    </div>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<div class="tab" id="tab-about">
+  <div class="container">
+    <div class="card">
+      <div class="section-label">About LitAccess</div>
+      <h1 style="font-size:2rem; margin-bottom:12px;">Built by an SLP. Designed for education.</h1>
+      <p style="font-size:0.95rem; color:#5A5A5A; line-height:1.8; margin-bottom:16px;">LitAccess was developed by a certified, practicing Speech-Language Pathologist who wanted to make high-quality literacy support easier to access and easier to use.</p>
+      <p style="font-size:0.95rem; color:#5A5A5A; line-height:1.8; margin-bottom:16px;">The idea grew from a simple problem: students often need more targeted literacy support, while parents and educators need practical materials and meaningful opportunities for instruction and practice.</p>
+      <p style="font-size:0.95rem; color:#5A5A5A; line-height:1.8;">LitAccess brings those pieces together through free literacy resources and virtual small-group instruction for K–5 students. The focus is education: useful, focused, accessible support that families and educators can use without hours of preparation.</p>
+    </div>
+
+    <div class="card">
+      <div class="section-label">What LitAccess believes</div>
+      <h2 style="font-size:1.5rem; margin-bottom:16px;">Literacy support should be accessible, targeted, and useful.</h2>
+      <div style="display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:14px;">
+        <div style="background:#F7F4EF; border-radius:8px; padding:16px;">
+          <strong style="display:block; margin-bottom:5px;">Meet students where they are</strong>
+          <span style="font-size:0.86rem; color:#5A5A5A; line-height:1.6;">Instruction and materials should reflect students' current reading skills and support their next steps.</span>
+        </div>
+        <div style="background:#F7F4EF; border-radius:8px; padding:16px;">
+          <strong style="display:block; margin-bottom:5px;">Practice matters</strong>
+          <span style="font-size:0.86rem; color:#5A5A5A; line-height:1.6;">Students need repeated, supported opportunities to apply what they are learning.</span>
+        </div>
+        <div style="background:#F7F4EF; border-radius:8px; padding:16px;">
+          <strong style="display:block; margin-bottom:5px;">Keep it practical</strong>
+          <span style="font-size:0.86rem; color:#5A5A5A; line-height:1.6;">Resources should be ready to use and useful in real classrooms, homes, and learning settings.</span>
+        </div>
+        <div style="background:#F7F4EF; border-radius:8px; padding:16px;">
+          <strong style="display:block; margin-bottom:5px;">Make support easier to access</strong>
+          <span style="font-size:0.86rem; color:#5A5A5A; line-height:1.6;">Families and educators should have practical options for additional literacy support.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-label">Educational literacy groups</div>
+      <h2 style="font-size:1.5rem; margin-bottom:10px;">Instruction led by an SLP. Designed for education.</h2>
+      <p style="font-size:0.9rem; color:#5A5A5A; line-height:1.7; margin-bottom:14px;">LitAccess groups provide educational literacy instruction led by a certified, practicing SLP. They are not speech-language therapy, diagnostic evaluations, or individualized clinical services.</p>
+      <p style="font-size:0.9rem; color:#5A5A5A; line-height:1.7;">The groups focus on explicit literacy instruction, guided practice, reading, comprehension, vocabulary, fluency, and discussion in a supportive small-group setting. Students work on shared instructional goals with peers at a similar level or with similar skill needs.</p>
+    </div>
+
+    <div class="card mission-card" style="background:#0F6E56 !important; color:#FFFFFF !important; padding:34px 32px; text-align:center;">
+      <div class="section-label" style="color:rgba(255,255,255,0.72); margin-bottom:10px;">Our mission</div>
+      <h2 style="font-size:2rem; line-height:1.15; margin:0 auto 14px; max-width:620px;">Make high-quality literacy support easier to access.</h2>
+      <p style="font-size:0.96rem; color:rgba(255,255,255,0.84); line-height:1.75; max-width:610px; margin:0 auto 24px;">LitAccess gives families and educators practical literacy resources they can use right away, plus virtual small-group instruction for students who need more focused support.</p>
+      <div style="display:flex; justify-content:center; gap:12px; flex-wrap:wrap;">
+        <button class="btn btn-lg" style="background:#FFFFFF !important; color:#0F6E56 !important; border:2px solid #FFFFFF !important; box-shadow:none;" onclick="showTab('tool')">Explore free resources</button>
+        <button class="btn btn-lg btn-coral" style="background:#D85A30 !important; color:#FFFFFF !important; border:2px solid #D85A30 !important;" onclick="showTab('pricing')">Explore literacy groups</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer style="background:#1E1E1E; color:rgba(255,255,255,0.6); padding:28px 32px; font-size:0.82rem; line-height:1.6;">
+  <div style="max-width:760px; margin:0 auto; display:flex; flex-direction:column; gap:12px;">
+    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+      <span style="font-family:'DM Serif Display', serif; font-size:1.2rem; color:white;">Lit<span style="color:#A8D8D8;">Access</span></span>
+      <div style="display:flex; gap:20px; flex-wrap:wrap;">
+        <a href="privacy.html" style="color:rgba(255,255,255,0.6); text-decoration:none;">Privacy Policy</a>
+        <a href="terms.html" style="color:rgba(255,255,255,0.6); text-decoration:none;">Terms of Service</a>
+        <a href="#" onclick="showTab('tool')" style="color:rgba(255,255,255,0.6); text-decoration:none;">Generator</a>
+      </div>
+    </div>
+    <div style="border-top:1px solid rgba(255,255,255,0.1); padding-top:12px; font-size:0.78rem; color:rgba(255,255,255,0.4);">
+      &copy; 2026 LitAccess. All rights reserved. LitAccess provides educational literacy tools, materials, and instruction. It does not provide speech-language therapy, diagnostic evaluation, clinical treatment, or individualized clinical services.
+    </div>
+  </div>
+</footer>
+
+<script>
+var WORKER_URL = 'https://litaccess-proxy.lafaria28.workers.dev';
+var FORMSPREE = 'https://formspree.io/f/xaqajkon';
+
+async function submitGroupInterest(e) {
+  e.preventDefault();
+  var status = document.getElementById('group-interest-status');
+  var email = document.getElementById('group-email').value;
+  var grade = document.getElementById('group-grade').value;
+  status.textContent = 'Sending...';
+  try {
+    var res = await fetch(FORMSPREE, { method:'POST', headers:{'Content-Type':'application/json','Accept':'application/json'}, body:JSON.stringify({ parent_name:document.getElementById('group-name').value, email:email, child_grade:grade, notes:document.getElementById('group-notes').value, form_type:'LitAccess Group-Fit Consultation', _subject:'New LitAccess group-fit consultation: ' + email }) });
+    if (!res.ok) throw new Error('Request failed');
+    status.textContent = 'Thanks. We’ll be in touch to talk about the best group fit for your child.';
+    e.target.reset();
+  } catch(err) {
+    status.textContent = 'Something went wrong. Please try again.';
+  }
+}
+
+
+var currentGrade = 'K', currentLen = 'short', currentMode = 'decode';
+var fluencyTimerInterval = null, fluencySecondsLeft = 60;
+
+// --- COOKIE HELPERS ---
+function setCookie(name, val, days) {
+  var d = new Date(); d.setTime(d.getTime() + days*24*60*60*1000);
+  document.cookie = name + '=' + encodeURIComponent(val) + ';expires=' + d.toUTCString() + ';path=/';
+}
+function getCookie(name) {
+  var v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+  return v ? decodeURIComponent(v.pop()) : '';
+}
+
+// --- EMAIL GATE ---
+function checkGate() {
+  var email = getCookie('litaccess_email');
+  var gate = document.getElementById('email-gate');
+  if (gate) gate.style.display = email ? 'none' : 'flex';
+  if (email) document.getElementById('passage-empty').style.display = 'flex';
+}
+
+async function submitGate() {
+  var email = document.getElementById('gate-email').value.trim();
+  if (!email || !email.includes('@')) { alert('Please enter a valid email address.'); return; }
+  var btn = document.querySelector('#email-gate .btn-coral');
+  btn.textContent = 'Getting access...';
+  btn.disabled = true;
+  // Send to Formspree for lead capture
+  try {
+    await fetch(FORMSPREE, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }, body: JSON.stringify({ email: email, role: role, form_type: 'LitAccess Free Access', _subject: 'New LitAccess signup: ' + email }) });
+  } catch(e) {}
+  // Set cookie regardless - don't punish user for network issues
+  setCookie('litaccess_email', email, 365);
+  document.getElementById('email-gate').style.display = 'none';
+  document.getElementById('passage-empty').style.display = 'flex';
+}
+
+// --- NAV & TABS ---
+function showTab(name) {
+  document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+  document.querySelectorAll('.nav-btn').forEach(function(b) { b.classList.remove('active'); });
+  document.getElementById('tab-' + name).classList.add('active');
+  var nb = document.getElementById('nav-' + name);
+  if (nb) nb.classList.add('active');
+  window.scrollTo(0, 0);
+  if (name === 'tool') { checkGate(); }
+}
+function toggleMobileMenu() { document.getElementById('mobile-menu').classList.toggle('open'); }
+function closeMobileMenu() { document.getElementById('mobile-menu').classList.remove('open'); }
+
+// --- GENERATOR CONTROLS ---
+function setGrade(g) { ['K','1st','2nd','3rd','4th','5th'].forEach(function(x) { document.getElementById('grade-'+x).classList.toggle('active', x===g); }); currentGrade = g; }
+function setLen(l) { ['short','medium','long'].forEach(function(x) { document.getElementById('len-'+x).classList.toggle('active', x===l); }); currentLen = l; }
+function checkCustom() { document.getElementById('custom-topic').style.display = document.getElementById('topic-sel').value === 'Custom' ? 'block' : 'none'; }
+function setBg(el, bg, txt) { document.querySelectorAll('.swatch').forEach(function(s) { s.classList.remove('active'); }); el.classList.add('active'); var box = document.getElementById('passage-box'); if (box) { box.style.background = bg; box.style.color = txt; } }
+function updateDisplay() { var box = document.getElementById('passage-box'); if (!box) return; box.style.fontFamily = document.getElementById('font-sel').value; box.style.fontSize = document.getElementById('font-size').value + 'px'; box.style.lineHeight = document.getElementById('line-h').value; box.style.letterSpacing = document.getElementById('letter-s').value + 'px'; }
+
+function setMode(mode) {
+  currentMode = mode;
+  var extras = document.getElementById('decode-extras');
+  var btn = document.getElementById('gen-btn');
+  if (mode === 'fluency') { extras.style.display = 'none'; btn.textContent = 'Generate fluency passage'; }
+  else { extras.style.display = 'flex'; btn.textContent = 'Generate passage'; }
+  document.getElementById('passage-output').style.display = 'none';
+  document.getElementById('passage-empty').style.display = 'flex';
+  resetFluencyTimer();
+}
+
+function handleGenerate() { generatePassage(); }
+
+async function generatePassage() {
+  document.getElementById('passage-empty').style.display = 'none';
+  document.getElementById('passage-output').style.display = 'none';
+  document.getElementById('passage-loading').style.display = 'flex';
+  document.getElementById('gen-btn').disabled = true;
+  var skill = document.getElementById('skill-sel').value;
+  var vocab = document.getElementById('vocab-sel').value;
+  var topicRaw = document.getElementById('topic-sel').value;
+  var topic = topicRaw === 'Custom' ? (document.getElementById('custom-topic').value || 'animals') : topicRaw;
+  var comprq = document.getElementById('tog-comprq').checked;
+  var wordlist = document.getElementById('tog-wordlist').checked;
+  var morph = document.getElementById('tog-morph').checked;
+  var lenDesc = currentLen === 'short' ? '3-4 sentences' : currentLen === 'medium' ? '2 short paragraphs' : '3 paragraphs';
+  var isFluency = (currentMode === 'fluency');
+  var prompt = isFluency
+    ? 'You are a reading fluency specialist. Write a natural grade-level reading passage for a ' + currentGrade + ' grade student. Length: approximately 150-200 words for a 60-second read. Topic: ' + topic + '. Use natural language and varied sentences. No section labels or headers. Plain text only.'
+    : 'You are a structured literacy curriculum specialist. Write a decodable reading passage for a ' + currentGrade + ' grade student.\n\nTARGET SKILL: ' + skill + '\nTOPIC: ' + topic + '\nLENGTH: ' + lenDesc + '\n' + (vocab !== 'None' ? 'VOCABULARY: Include ' + vocab + ' vocabulary naturally.\n' : '') + (morph ? 'MORPHEMES: Wrap prefixes and suffixes in <m> tags, e.g. <m>un</m>happy, beauti<m>ful</m>, <m>re</m>start<m>ed</m>. Root words stay untagged. Use ONLY <m> tags, no brackets or other markup.\n' : '') + (wordlist ? 'Include a WORD LIST section at the start with 3-5 key words and one-word definitions.\n' : '') + (comprq ? 'Include 2 COMPREHENSION QUESTIONS at the end.\n' : '') + '\nRules: 90%+ of words decodable using target skill and previously learned skills. Short clear sentences. Engaging tone. Plain ALL CAPS section labels. No markdown or asterisks.';
+  try {
+    var res = await fetch(WORKER_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1000, messages: [{ role: 'user', content: prompt }] }) });
+    var data = await res.json();
+    var text = (data.content && data.content[0] && data.content[0].text) ? data.content[0].text : 'Could not generate passage. Please try again.';
+    document.getElementById('passage-loading').style.display = 'none';
+    document.getElementById('passage-output').style.display = 'block';
+    document.getElementById('passage-tags').innerHTML = [currentGrade + ' grade', skill, topic].map(function(t) { return '<span class="passage-tag">' + t + '</span>'; }).join('');
+    // Convert <m> tags to styled spans for morpheme highlighting
+    var formatted = text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/&lt;m&gt;/g, '<span style="color:#D85A30; font-weight:600;">')
+      .replace(/&lt;\/m&gt;/g, '</span>');
+    document.getElementById('passage-box').innerHTML = formatted;
+    updateDisplay();
+    var fp = document.getElementById('fluency-panel');
+    if (currentMode === 'fluency') {
+      // Hide the passage box until timer starts
+      document.getElementById('passage-box').style.display = 'none';
+      fp.style.display = 'block';
+      document.getElementById('fluency-ready').style.display = 'block';
+      document.getElementById('fluency-running').style.display = 'none';
+      document.getElementById('fluency-entry').style.display = 'none';
+      document.getElementById('fluency-result').style.display = 'none';
+    } else {
+      document.getElementById('passage-box').style.display = 'block';
+      fp.style.display = 'none';
+    }
+  } catch(e) {
+    document.getElementById('passage-loading').style.display = 'none';
+    document.getElementById('passage-empty').style.display = 'flex';
+    alert('Something went wrong generating the passage. Please try again.');
+  }
+  document.getElementById('gen-btn').disabled = false;
+}
+
+// --- FLUENCY TIMER ---
+function revealAndStart() {
+  // Reveal passage and start timer simultaneously
+  document.getElementById('passage-box').style.display = 'block';
+  document.getElementById('fluency-ready').style.display = 'none';
+  document.getElementById('fluency-running').style.display = 'block';
+  fluencySecondsLeft = 60; updateClock();
+  fluencyTimerInterval = setInterval(function() {
+    fluencySecondsLeft--;
+    updateClock();
+    if (fluencySecondsLeft <= 0) {
+      clearInterval(fluencyTimerInterval); fluencyTimerInterval = null;
+      document.getElementById('fluency-running').style.display = 'none';
+      document.getElementById('fluency-entry').style.display = 'block';
+      document.getElementById('wpm-input').focus();
+    }
+  }, 1000);
+}
+
+function startFluencyTimer() { revealAndStart(); }
+
+function stopFluencyTimer() {
+  if (fluencyTimerInterval) { clearInterval(fluencyTimerInterval); fluencyTimerInterval = null; }
+  document.getElementById('fluency-running').style.display = 'none';
+  document.getElementById('fluency-entry').style.display = 'block';
+  document.getElementById('wpm-input').focus();
+}
+function updateClock() {
+  var m = Math.floor(fluencySecondsLeft / 60), s = fluencySecondsLeft % 60;
+  var el = document.getElementById('fluency-clock'); if (!el) return;
+  el.textContent = m + ':' + (s < 10 ? '0' : '') + s;
+  el.style.color = fluencySecondsLeft <= 10 ? '#D85A30' : fluencySecondsLeft <= 30 ? '#E07B5A' : '#1E1E1E';
+}
+function resetFluencyTimer() {
+  if (fluencyTimerInterval) { clearInterval(fluencyTimerInterval); fluencyTimerInterval = null; }
+  fluencySecondsLeft = 60;
+  var clock = document.getElementById('fluency-clock'); if (clock) { clock.textContent = '1:00'; clock.style.color = '#1E1E1E'; }
+  var entry = document.getElementById('fluency-entry'); if (entry) { entry.style.display = 'none'; }
+  var result = document.getElementById('fluency-result'); if (result) { result.style.display = 'none'; result.innerHTML = ''; }
+  var wpm = document.getElementById('wpm-input'); if (wpm) { wpm.value = ''; }
+  var running = document.getElementById('fluency-running'); if (running) { running.style.display = 'none'; }
+  // Go back to ready screen and hide passage
+  var ready = document.getElementById('fluency-ready'); if (ready) { ready.style.display = 'block'; }
+  var box = document.getElementById('passage-box'); if (box) { box.style.display = 'none'; }
+}
+
+var WPM_BENCH = { 'K': {low:20,mid:30}, '1st': {low:53,mid:71}, '2nd': {low:82,mid:92}, '3rd': {low:97,mid:107}, '4th': {low:109,mid:118}, '5th': {low:114,mid:124} };
+
+function scoreFluency() {
+  var wpm = parseInt(document.getElementById('wpm-input').value, 10);
+  if (!wpm || wpm < 0) { alert('Please enter the number of words read correctly.'); return; }
+  var bench = WPM_BENCH[currentGrade] || WPM_BENCH['2nd'];
+  var resultEl = document.getElementById('fluency-result');
+  var level, color, bg, rec;
+  if (wpm >= bench.mid) { level = 'At or above benchmark'; color = '#0F6E56'; bg = '#E1F5EE'; rec = 'Great work! This student is reading fluently for their grade level. Keep building fluency with longer passages and more complex topics.'; }
+  else if (wpm >= bench.low) { level = 'Approaching benchmark'; color = '#E07B5A'; bg = '#FEF3EC'; rec = 'This student is close to the benchmark of ' + bench.mid + ' WPM. Try repeated reading practice: have the student read the same passage three times in a row, tracking improvement across each read.'; }
+  else { level = 'Below benchmark'; color = '#D85A30'; bg = '#FAECE7'; rec = 'This student is reading below the benchmark of ' + bench.mid + ' WPM. Focus first on any decoding gaps using decodable passages, then return to fluency practice once decoding is stronger.'; }
+  resultEl.style.display = 'block';
+  resultEl.innerHTML = '<div style="background:' + bg + '; border-radius:8px; padding:16px; border-left:4px solid ' + color + ';"><div style="font-weight:600; color:' + color + '; font-size:0.9rem; margin-bottom:4px;">' + level + '</div><div style="font-size:0.82rem; color:#5A5A5A; margin-bottom:10px;">' + wpm + ' WPM | Benchmark for this grade: ' + bench.mid + ' WPM</div><p style="font-size:0.85rem; color:#1E1E1E; line-height:1.6; margin:0;">' + rec + '</p></div>';
+}
+
+// --- SCREENER ---
+var SCREENER_BANK = {
+  blend: [ {p:'/s/ /u/ /n/',a:'sun'},{p:'/f/ /l/ /a/ /t/',a:'flat'},{p:'/m/ /a/ /p/',a:'map'},{p:'/br/ /i/ /ck/',a:'brick'},{p:'/p/ /l/ /a/ /n/',a:'plan'},{p:'/sn/ /a/ /p/',a:'snap'},{p:'/gr/ /a/ /b/',a:'grab'},{p:'/str/ /ee/ /t/',a:'street'} ],
+  seg: [ {p:'map',a:'/m/ /a/ /p/'},{p:'chip',a:'/ch/ /i/ /p/'},{p:'sit',a:'/s/ /i/ /t/'},{p:'flag',a:'/f/ /l/ /a/ /g/'},{p:'frog',a:'/f/ /r/ /o/ /g/'},{p:'ship',a:'/sh/ /i/ /p/'},{p:'clap',a:'/c/ /l/ /a/ /p/'},{p:'blend',a:'/b/ /l/ /e/ /n/ /d/'} ],
+  ltr: [ {p:'m',a:'/m/'},{p:'sh',a:'/sh/'},{p:'b',a:'/b/'},{p:'ch',a:'/ch/'},{p:'th',a:'/th/'},{p:'wh',a:'/wh/'},{p:'f',a:'/f/'},{p:'oa',a:'long o'},{p:'ai',a:'long a'},{p:'ee',a:'long e'},{p:'or',a:'/or/'},{p:'ow',a:'long o or /ow/'} ],
+  cvc: [ {p:'dap',a:'dap'},{p:'fib',a:'fib'},{p:'gom',a:'gom'},{p:'tub',a:'tub'},{p:'ren',a:'ren'},{p:'mip',a:'mip'},{p:'baf',a:'baf'},{p:'nug',a:'nug'},{p:'zet',a:'zet'} ],
+  blends: [ {p:'clap',a:'clap'},{p:'ship',a:'ship'},{p:'frog',a:'frog'},{p:'step',a:'step'},{p:'chin',a:'chin'},{p:'drum',a:'drum'},{p:'flag',a:'flag'},{p:'grin',a:'grin'},{p:'shed',a:'shed'} ]
+};
+function pickRandom(arr, n) { var copy = arr.slice(), result = []; for (var i = 0; i < n && copy.length; i++) { var idx = Math.floor(Math.random()*copy.length); result.push(copy.splice(idx,1)[0]); } return result; }
+var screenerSteps = [], currentStep = 0, scores = {};
+function buildScreener() {
+  screenerSteps = [
+    {id:'ltr', title:'Letter-sound knowledge', instr:'Show or say each letter or letter combination. Ask: what sound does this make?', items:pickRandom(SCREENER_BANK.ltr,3)},
+    {id:'blend', title:'Phonemic awareness - blending', instr:'Say each set of sounds aloud. Ask the student to blend them together into a word.', items:pickRandom(SCREENER_BANK.blend,3)},
+    {id:'seg', title:'Phonemic awareness - segmenting', instr:'Say each word aloud. Ask the student to break it into its individual sounds.', items:pickRandom(SCREENER_BANK.seg,3)},
+    {id:'cvc', title:'CVC decoding', instr:'Ask the student to read these nonsense words aloud. Let them know these are made-up words.', items:pickRandom(SCREENER_BANK.cvc,3)},
+    {id:'blends', title:'Blends and digraphs', instr:'Ask the student to read these real words aloud.', items:pickRandom(SCREENER_BANK.blends,3)}
+  ];
+  currentStep = 0; scores = {};
+}
+function startScreener() { buildScreener(); document.getElementById('screener-intro').style.display='none'; document.getElementById('screener-body').style.display='block'; renderStep(); }
+function renderStep() {
+  var s = screenerSteps[currentStep], pct = Math.round((currentStep/screenerSteps.length)*100);
+  document.getElementById('step-label').textContent = 'Step '+(currentStep+1)+' of '+screenerSteps.length;
+  document.getElementById('step-pct').textContent = pct+'% complete';
+  document.getElementById('step-bar').style.width = pct+'%';
+  document.getElementById('step-title').textContent = s.title;
+  document.getElementById('step-instr').textContent = s.instr;
+  document.getElementById('next-btn').textContent = currentStep === screenerSteps.length-1 ? 'See results' : 'Next';
+  var el = document.getElementById('step-items'); el.innerHTML = '';
+  s.items.forEach(function(item, i) {
+    var key = s.id+'_'+i, answerId = 'ans-'+key, div = document.createElement('div');
+    div.style.cssText = 'background:#FAF6EF;border-radius:8px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;border:1px solid #E0D9D0;';
+    div.innerHTML = '<div><div style="font-size:0.72rem;color:#9A9A9A;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Prompt</div><div style="font-size:1.2rem;font-weight:600;color:#1E1E1E;font-family:\'Atkinson Hyperlegible\',sans-serif;margin-bottom:6px;">'+item.p+'</div><button class="answer-toggle" onclick="toggleAnswer(\''+answerId+'\')">Show answer</button><div class="answer-reveal" id="'+answerId+'">'+item.a+'</div></div><div style="display:flex;gap:8px;flex-shrink:0;"><button class="score-btn '+(scores[key]==='yes'?'yes':'')+'" onclick="score(\''+key+'\',\'yes\')">'+(scores[key]==='yes'?'+ ':'')+'Got it</button><button class="score-btn '+(scores[key]==='no'?'no':'')+'" onclick="score(\''+key+'\',\'no\')">'+(scores[key]==='no'?'x ':'')+'Missed</button></div>';
+    el.appendChild(div);
+  });
+}
+function toggleAnswer(id) { var el=document.getElementById(id), btn=el.previousElementSibling; if(el.style.display==='block'){el.style.display='none';btn.textContent='Show answer';}else{el.style.display='block';btn.textContent='Hide answer';} }
+function score(key,val) { scores[key]=val; renderStep(); }
+function nextStep() { if(currentStep<screenerSteps.length-1){currentStep++;renderStep();}else{showScreenerResults();} }
+function prevStep() { if(currentStep>0){currentStep--;renderStep();} }
+
+function buildFallbackText(lowestSkill) {
+  var skill = lowestSkill || 'phonemic awareness';
+  var isPA = skill.toLowerCase().indexOf('blend')!==-1||skill.toLowerCase().indexOf('segment')!==-1||skill.toLowerCase().indexOf('phonemic')!==-1;
+  var rec = isPA ? 'Start with short CVC passages in the LitAccess generator to reinforce blending and segmenting in connected text.' : 'In the LitAccess generator, select '+skill.toLowerCase()+' as your target skill and generate a short decodable passage with the word list turned on.';
+  return 'Based on these results, your student has gaps in '+skill.toLowerCase()+'. This is the most important skill to address before moving to more advanced phonics work. '+rec;
+}
+
+async function showScreenerResults() {
+  document.getElementById('screener-body').style.display='none';
+  document.getElementById('screener-results').style.display='block';
+  var bars=document.getElementById('score-bars'); bars.innerHTML='';
+  var summary='', lowestScore=1, lowestSkill='';
+  screenerSteps.forEach(function(s) {
+    var correct=s.items.filter(function(_,i){return scores[s.id+'_'+i]==='yes';}).length;
+    var pct=Math.round((correct/s.items.length)*100), ratio=correct/s.items.length;
+    summary+=s.title+': '+correct+'/'+s.items.length+'. ';
+    if(ratio<lowestScore){lowestScore=ratio;lowestSkill=s.title;}
+    var fillColor=pct>=67?'#0F6E56':pct>=34?'#E07B5A':'#D85A30';
+    bars.innerHTML+='<div style="margin-bottom:16px;"><div style="display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:5px;"><span style="color:#1E1E1E;font-weight:500;">'+s.title+'</span><span style="color:'+fillColor+';font-weight:600;">'+correct+'/'+s.items.length+'</span></div><div style="background:#E0D9D0;border-radius:20px;height:6px;"><div style="background:'+fillColor+';border-radius:20px;height:6px;width:'+pct+'%;"></div></div></div>';
+  });
+  var resultsEl=document.getElementById('results-text'); resultsEl.textContent='Analyzing results...';
+  try {
+    var res=await fetch(WORKER_URL, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({model:'claude-sonnet-4-6', max_tokens:500, messages:[{role:'user', content:'You are a structured literacy expert. A student completed a phonics screener: '+summary+' Write 3-4 plain-English sentences for a parent or tutor covering: (1) current skill level, (2) the single most important skill to target next named specifically, (3) a concrete recommendation referencing the free LitAccess passage generator. Do not recommend physical materials. End with: Use the LitAccess passage generator to create targeted reading practice for exactly this skill.'}]})});
+    var data=await res.json();
+    resultsEl.textContent=(data.content&&data.content[0]&&data.content[0].text)?data.content[0].text:buildFallbackText(lowestSkill);
+  } catch(e) { resultsEl.textContent=buildFallbackText(lowestSkill); }
+}
+
+</script>
+</body>
+</html>
