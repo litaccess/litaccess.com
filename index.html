@@ -89,12 +89,12 @@
   .score-btn.no { border-color: #D85A30; background: #FAECE7; color: #993C1D; }
 
   /* TOOL LAYOUT */
-  .tool-layout { display: grid; grid-template-columns: 300px 1fr; min-height: calc(100vh - 60px); }
+  .tool-layout { display: grid; grid-template-columns: 300px 1fr; min-height: calc(100vh - 60px); position: relative; }
   .tool-sidebar { background: #FFFFFF; border-right: 1px solid #E0D9D0; padding: 24px 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 18px; }
   .tool-output { padding: 28px; overflow-y: auto; background: #F5F0E8; position: relative; min-height: calc(100vh - 60px); }
 
-  /* EMAIL GATE OVERLAY */
-  .email-gate { position: absolute; inset: 0; background: rgba(245,240,232,0.97); display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 48px; text-align: center; gap: 16px; z-index: 10; padding-left: 32px; padding-right: 32px; }
+  /* EMAIL GATE */
+  .email-gate { position: relative; width: 100%; margin: 0 0 24px; background: #FFFFFF; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 28px 32px; text-align: center; gap: 12px; border: 1px solid #E0D9D0; border-radius: 12px; box-shadow: 0 2px 16px rgba(15,110,86,0.08); }
 
   /* HERO */
   .hero { background: linear-gradient(135deg, #0F6E56 0%, #085041 100%); padding: 60px 32px 52px; }
@@ -139,14 +139,16 @@
     .container { padding: 24px 16px 60px; }
     .two-col, .equal-cards { grid-template-columns: 1fr !important; }
     .three-col, .form-grid { grid-template-columns: 1fr; }
-    .tool-layout { grid-template-columns: 1fr; }
-    .tool-sidebar { border-right: none; border-bottom: 1px solid #E0D9D0; }
-    .tool-output { padding: 16px; min-height: 320px; }
-    .email-gate { position: relative; inset: auto; min-height: 280px; border-radius: 12px; margin-top: 16px; background: #FFFFFF !important; border: 1px solid #E0D9D0; }
+    .tool-layout { display: flex; flex-direction: column; }
+    .tool-output { order: 1; padding: 16px; min-height: 320px; }
+    .tool-sidebar { order: 2; border-right: none; border-bottom: 1px solid #E0D9D0; }
+    .email-gate { width: 100%; min-height: 0; border-radius: 12px; margin: 0 0 20px; background: #FFFFFF !important; border: 1px solid #E0D9D0; padding: 24px 16px; }
     h1 { font-size: 1.9rem; }
     h2 { font-size: 1.5rem; }
     .btn-lg { padding: 12px 20px; font-size: 0.92rem; }
     .equal-cards .card { min-height: auto !important; }
+    .container[style*="padding-bottom:24px"] .card > div { grid-template-columns: 1fr !important; }
+    .container[style*="padding-bottom:24px"] .card > div > div:last-child { width:100% !important; }
   }
   @media (max-width: 400px) {
     .hero-inner h1 { font-size: 1.7rem; }
@@ -296,6 +298,32 @@
             <div class="mini-ui-title">Passage</div>
             <p class="mini-ui-text">The big dino can <strong>stomp</strong> and <strong>sprint</strong>. It has a flat <strong>crest</strong>. The dino rests in the sand.</p>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container" style="padding-bottom:24px;">
+    <div class="card" style="margin-bottom:0; border:2px solid #0F6E56; background:#FFFFFF !important; box-shadow:0 4px 20px rgba(15,110,86,0.12);">
+      <div style="display:grid; grid-template-columns:1fr auto; gap:24px; align-items:center;">
+        <div>
+          <div class="section-label">Free access</div>
+          <h2 style="font-size:1.55rem; margin-bottom:7px;">Get free LitAccess access.</h2>
+          <p style="font-size:0.9rem; color:#5A5A5A; line-height:1.65; margin:0;">Sign up once to use the free literacy tools and resources. No subscription required.</p>
+        </div>
+        <div style="width:300px; display:flex; flex-direction:column; gap:9px;">
+          <input type="email" id="home-gate-email" class="form-input" placeholder="your@email.com" aria-label="Email address">
+          <select id="home-gate-role" class="form-select" aria-label="Your role">
+            <option value="">I am a...</option>
+            <option>Parent / caregiver</option>
+            <option>Teacher</option>
+            <option>SLP</option>
+            <option>Special educator</option>
+            <option>Tutor / reading specialist</option>
+            <option>Other education professional</option>
+          </select>
+          <button class="btn btn-coral btn-block" onclick="submitHomeGate()">Get free access</button>
+          <div style="font-size:0.72rem; color:#9A9A9A; text-align:center;">No spam. Unsubscribe anytime.</div>
         </div>
       </div>
     </div>
@@ -729,6 +757,21 @@ function checkGate() {
   if (email) document.getElementById('passage-empty').style.display = 'flex';
 }
 
+async function submitHomeGate() {
+  var email = document.getElementById('home-gate-email').value.trim();
+  var role = document.getElementById('home-gate-role').value;
+  if (!email || !email.includes('@')) { alert('Please enter a valid email address.'); return; }
+  if (!role) { alert('Please select your role.'); return; }
+  var btn = document.querySelector('#home-gate-email').parentElement.querySelector('.btn-coral');
+  btn.textContent = 'Getting access...';
+  btn.disabled = true;
+  try {
+    await fetch(FORMSPREE, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }, body: JSON.stringify({ email: email, role: role, form_type: 'LitAccess Free Access', _subject: 'New LitAccess signup: ' + email }) });
+  } catch(e) {}
+  setCookie('litaccess_email', email, 365);
+  showTab('tool');
+}
+
 async function submitGate() {
   var email = document.getElementById('gate-email').value.trim();
   if (!email || !email.includes('@')) { alert('Please enter a valid email address.'); return; }
@@ -779,6 +822,13 @@ function setMode(mode) {
 function handleGenerate() { generatePassage(); }
 
 async function generatePassage() {
+  if (!getCookie('litaccess_email')) {
+    var gate = document.getElementById('email-gate');
+    if (gate) gate.scrollIntoView({behavior:'smooth', block:'center'});
+    var emailField = document.getElementById('gate-email');
+    if (emailField) emailField.focus();
+    return;
+  }
   document.getElementById('passage-empty').style.display = 'none';
   document.getElementById('passage-output').style.display = 'none';
   document.getElementById('passage-loading').style.display = 'flex';
